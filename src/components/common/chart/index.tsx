@@ -12,12 +12,22 @@ import {
   PieChart,
   Line,
   CartesianAxis,
+  Text,
   Dot,
+  Cell,
+  Label,
+  Pie,
 } from "recharts";
 import Dropdown from "../dropdown";
-import { graphDatatype } from "../../../core/types";
+import {
+  clientHours,
+  graphDataIsForChart,
+  graphDatatype,
+} from "../../../core/types";
 import classNames from "classnames";
 import { generateRandomColor } from "../../../core/utils";
+import { useState, useEffect } from "react";
+import Legend from "../legend";
 
 interface Props {
   type: "area" | "line" | "pie";
@@ -67,6 +77,12 @@ const Chart: React.FC<Props> = ({
   someBigText,
   exportPdf,
 }) => {
+  const [pieColors, setPieColors] = useState<string[]>([]);
+
+  useEffect(() => {
+    setPieColors(data.map(() => generateRandomColor()));
+  }, [data]);
+
   const renderChart = () => {
     switch (type) {
       case "area":
@@ -128,10 +144,11 @@ const Chart: React.FC<Props> = ({
                 <XAxis
                   dataKey="name"
                   padding={{
-                    left: 25,
+                    left: 5,
                   }}
+                  tickLine={false}
                 />
-                <YAxis />
+                <YAxis tickLine={false} />
               </>
             )}
             {!hideTooltip && <Tooltip />}
@@ -154,17 +171,82 @@ const Chart: React.FC<Props> = ({
             })}
           </LineChart>
         );
-      case "pie":
-        return <PieChart></PieChart>;
+      default:
+        return null;
     }
   };
+
+  const renderPieChart = () =>
+    graphDataIsForChart(data) && (
+      <>
+        <ResponsiveContainer width={181} height={181}>
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              innerRadius={65}
+              outerRadius={90.5}
+            >
+              <Label
+                content={(props) => {
+                  const fontSize = 16;
+
+                  const {
+                    /*  @ts-ignore  */
+                    viewBox: { cx, cy },
+                  } = props;
+                  const positioningPropsValue = {
+                    x: cx,
+                    y: cy - fontSize,
+                    textAnchor: "middle",
+                    verticalAnchor: "middle",
+                  };
+
+                  const positioningPropsText = {
+                    x: cx,
+                    y: cy + fontSize / 2,
+                    textAnchor: "middle",
+                    verticalAnchor: "middle",
+                  };
+                  return (
+                    <>
+                      {/*  @ts-ignore  */}
+                      <Text {...positioningPropsValue}>{`${Math.round(
+                        data.reduce((prev, curr) => prev + curr.value, 0)
+                      )}`}</Text>
+                      {/*  @ts-ignore  */}
+                      <Text {...positioningPropsText}>Working Hours</Text>
+                    </>
+                  );
+                }}
+              />
+
+              {data.map((_entry, index) => (
+                <Cell key={`cell-${index}`} fill={pieColors[index]} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        <div className={styles.legends}>
+          {data.map((entry, index) => (
+            <Legend
+              key={entry.companyName}
+              name={entry.companyName}
+              value={entry.value}
+              color={pieColors[index]}
+            />
+          ))}
+        </div>
+      </>
+    );
 
   return (
     <div
       className={classNames(
         styles["graph-container"],
         className,
-        styles[contentDirection]
+        styles[contentDirection],
+        styles[type]
       )}
     >
       <div className={styles["graph-head"]}>
@@ -184,7 +266,13 @@ const Chart: React.FC<Props> = ({
         )}
       </div>
       {someBigText && <div className={styles["big-text"]}>{someBigText}</div>}
-      <ResponsiveContainer height={"95%"}>{renderChart()}</ResponsiveContainer>
+      {type !== "pie" ? (
+        <ResponsiveContainer height={"95%"}>
+          {renderChart()}
+        </ResponsiveContainer>
+      ) : (
+        renderPieChart()
+      )}
       {exportPdf && (
         <button className={styles["export-pdf"]}>Export pdf</button>
       )}

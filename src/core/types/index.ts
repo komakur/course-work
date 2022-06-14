@@ -58,3 +58,11 @@ export type pageData = {
   clientHours: clientHours[];
   totalInLastGraph: string;
 };
+
+export const graphDataIsForChart = (
+  data: graphDatatype
+): data is clientHours[] =>
+  data.every(
+    (item: clientHours) =>
+      item.companyName !== undefined && item.value !== undefined
+  );

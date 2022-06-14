@@ -189,71 +189,12 @@ const Home: React.FC<Props> = ({
         <div className={styles.separator} />
         <div className={styles.cards}>
           <Card>
-            <div className={styles["card-top"]}>
-              <h3>Client Hours</h3>
-              <p>Working hours</p>
-            </div>
-            <ResponsiveContainer width={181} height={181}>
-              <PieChart>
-                <Pie
-                  data={clientHours}
-                  dataKey="value"
-                  innerRadius={65}
-                  outerRadius={90.5}
-                >
-                  <Label
-                    content={(props) => {
-                      const fontSize = 16;
-
-                      const {
-                        /*  @ts-ignore  */
-                        viewBox: { cx, cy },
-                      } = props;
-                      const positioningPropsValue = {
-                        x: cx,
-                        y: cy - fontSize,
-                        textAnchor: "middle",
-                        verticalAnchor: "middle",
-                      };
-
-                      const positioningPropsText = {
-                        x: cx,
-                        y: cy + fontSize / 2,
-                        textAnchor: "middle",
-                        verticalAnchor: "middle",
-                      };
-                      return (
-                        <>
-                          {/*  @ts-ignore  */}
-                          <Text {...positioningPropsValue}>{`${Math.round(
-                            clientHours.reduce(
-                              (prev, curr) => prev + curr.value,
-                              0
-                            )
-                          )}`}</Text>
-                          {/*  @ts-ignore  */}
-                          <Text {...positioningPropsText}>Working Hours</Text>
-                        </>
-                      );
-                    }}
-                  />
-
-                  {clientHours.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={pieColors[index]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div className={styles.legends}>
-              {clientHours.map((entry, index) => (
-                <Legend
-                  key={entry.companyName}
-                  name={entry.companyName}
-                  value={entry.value}
-                  color={pieColors[index]}
-                />
-              ))}
-            </div>
+            <Chart
+              type="pie"
+              data={clientHours}
+              title="Client Hours"
+              subtitle="Working Hours"
+            />
           </Card>
           <Card noSidePadding>
             <div className={styles["card-user-photo-container"]}>

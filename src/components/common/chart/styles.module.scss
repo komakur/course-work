@@ -26,6 +26,19 @@
       margin-right: rem(32px);
     }
   }
+
+  &.pie {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+
+    .graph-head {
+      align-self: flex-start;
+    }
+  }
 }
 
 .graph-head {
@@ -72,4 +85,13 @@
   p {
     color: var(--text-primary-2);
   }
+}
+
+.legends {
+  display: flex;
+
+  flex-direction: column;
+  gap: rem(15px);
+
+  margin-top: rem(51px);
 }
